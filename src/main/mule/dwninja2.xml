@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="0ac98cf4-90d1-4e2b-9618-f75352fbb026" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="dwninja2Flow" doc:id="64bf3070-f722-4e20-8048-348ca503767e" >
+		<http:listener doc:name="Listener" doc:id="914b4e04-c22c-4efc-921c-51a346c94195" config-ref="HTTP_Listener_config" path="/api/executors/dw"/>
+		<set-variable value="#[payload.expression]" doc:name="Set expression" doc:id="00d86656-cb6b-4c18-b357-07c77404dd0c" variableName="expression"/>
+		<flow-ref doc:name="dwninja2SetVariableSubFlow" doc:id="c9eff22e-1bc1-4c5f-bff3-2a005a0df36d" name="dwninja2SetVariableSubFlow"/>
+		<set-payload value="#[read(payload.payload.value, payload.payload.mimetype)]" doc:name="Set Payload" doc:id="cc2f8647-504d-4e07-a253-88284f462ec4" />
+		<ee:dynamic-evaluate doc:name="Dynamic Evaluate" doc:id="7f6628e4-f137-4e92-ac01-82f4f223039e" expression="#[vars.expression]"/>
+	</flow>
+	<sub-flow name="dwninja2SetVariableSubFlow" doc:id="13533da7-1a4b-4ad0-9f2a-3578cd01cfce" >
+		<foreach doc:name="For Each" doc:id="52a77f4b-b71c-4567-afb2-9b2ba7d84b78" collection="payload.vars">
+			<set-variable value="#[read(payload.value, payload.mimetype)]" doc:name="Set variable" doc:id="9c6fe13c-d493-40f5-ab2c-c62494ccc6e8" variableName='#[payload.name replace /vars\./ with ""]'/>
+		</foreach>
+	</sub-flow>
+	<flow name="dwninja2StaticFilesFlow" doc:id="c2982bd4-8725-4826-9e2c-2e3a454bd70d" >
+		<http:listener doc:name="Listener" doc:id="11a84494-9614-4646-b35c-ec960da9acc0" config-ref="HTTP_Listener_config" path="/*"/>
+		<http:load-static-resource doc:name="Load static resource" doc:id="273424a4-cc2c-4c6a-817c-3d547a3fcb4f" resourceBasePath="D:\workspace\dwninja\dwninja2\src\main\resources\ui\"/>
+	</flow>
+</mule>
