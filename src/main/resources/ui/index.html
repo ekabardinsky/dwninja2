@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>DataWeave Ninja 2</title>
+<!-- Start of Woopra Code -->
+<script>
+(function(){
+        var t,i,e,n=window,o=document,a=arguments,s="script",r=["config","track","identify","visit","push","call","trackForm","trackClick"],c=function(){var t,i=this;for(i._e=[],t=0;r.length>t;t++)(function(t){i[t]=function(){return i._e.push([t].concat(Array.prototype.slice.call(arguments,0))),i}})(r[t])};for(n._w=n._w||{},t=0;a.length>t;t++)n._w[a[t]]=n[a[t]]=n[a[t]]||new c;i=o.createElement(s),i.async=1,i.src="//static.woopra.com/js/w.js",e=o.getElementsByTagName(s)[0],e.parentNode.insertBefore(i,e)
+})("woopra");
+
+woopra.config({
+    domain: 'dwninja2.tk'
+});
+woopra.track();
+</script>
+<!-- End of Woopra Code -->
+<style type="text/css" media="screen">
+#input {
+	position: absolute;
+	top: 7%;
+	left: 0%;
+	height: 58%;
+	width: 33%;
+}
+
+#variablesTable {
+	position: absolute;
+	background-color: #272822;
+	bottom: 0%;
+	left: 0%;
+	height: 35%;
+	width: 33%;
+}
+
+#dw {
+	border: 1px solid #202020;
+	position: absolute;
+	top: 7%;
+	left: 33%;
+	height: 92.8%;
+	width: 34%;
+}
+
+#output {
+	position: absolute;
+	top: 7%;
+	left: 67.1%;
+	height: 93%;
+	width: 32.9%;
+}
+
+#button {
+	position: absolute;
+	top: 0%;
+	left: 33%;
+	background-color: #272822;
+	border: 1px solid #151515;
+	color: white;
+	height: 7%;
+	width: 34.1%;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 20px;
+	cursor: pointer;
+}
+
+#status {
+	position: absolute;
+	top: 0%;
+	left: 67.1%;
+	background-color: #272822;
+	border: 2px solid #202020;
+	color: white;
+	height: 7%;
+	width: 32.65%;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 20px;
+}
+
+#inputType {
+	top: 0%;
+	left: 0%;
+	position: absolute;
+	color: white;
+	background-color: #272822;
+	border: 2px solid #202020;
+	height: 7%;
+	font-size: 20px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	width: 33%;
+	cursor: pointer;
+}
+
+.ace_tooltip {
+	max-width: 50px;
+	word-wrap: break-word !important;
+	white-space: pre-wrap !important;
+}
+</style>
+<!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</head>
+<body>
+
+	<script src="/ace-builds/src/ace.js" type="text/javascript"
+		charset="utf-8"></script>
+
+	<!--settings space-->
+	<select id="inputType" onchange="inputTypeChangeHandler(this)">
+		<option value="ace/mode/json">application/json</option>
+		<option value="ace/mode/xml">application/xml</option>
+		<option value="ace/mode/text">application/csv</option>
+		<option value="ace/mode/java">application/java</option>
+	</select>
+	<button id="button" onclick="evaluateDW()">Hiyah</button>
+	<div id="status">
+		<a class="github-button"
+			href="https://github.com/ekabardinsky/dwninja2"
+			data-icon="octicon-star" data-size="large" data-show-count="true"
+			aria-label="Star ekabardinsky/dwninja on GitHub">Star</a>
+		<a class="github-button"
+			href="https://github.com/ekabardinsky/dwninja2/issues"
+			data-icon="octicon-issue-opened" data-size="large"
+			data-show-count="true"
+			aria-label="Issue ekabardinsky/dwninja on GitHub">Issue</a>
+		<a class="github-button" href="https://github.com/ekabardinsky"
+			data-size="large" data-show-count="true"
+			aria-label="Follow @ekabardinsky on GitHub">Follow @ekabardinsky</a>
+	</div>
+	<!--editors space-->
+	<div id="input" onChange="onChange()">{ "title": "DataWeave" }</div>
+	<div id="dw" onChange="onChange()">%dw 2.0
+import * from dw::core::Strings
+output application/json
+--- 
+{ "I'm": payload.title ++ " " ++ capitalize(vars.name) }</div>
+	<div id="output"></div>
+	<div id="variablesTable" />
+
+	<script>
+    var input = ace.edit("input");
+    input.setTheme("ace/theme/monokai");
+    input.getSession().setMode("ace/mode/json");
+    input.$blockScrolling = Infinity;
+    
+    var dw = ace.edit("dw");
+    dw.setTheme("ace/theme/monokai");
+    dw.getSession().setMode("ace/mode/dw");
+    var output = ace.edit("output");
+    output.setTheme("ace/theme/monokai");
+    output.getSession().setMode("ace/mode/json");
+    output.$blockScrolling = Infinity;
+    output.getSession().setUseWrapMode(true)
+    
+    window.state = {
+        currentIndex: 0
+    };
+    window.variables = [{
+        name: "payload",
+        value: "\n{\t\"title\": \"DataWeave\"\n}",
+        mimetype: "application/json"
+    },{
+        name: "vars.name",
+        value: "ninja 2",
+        mimetype: "application/java"
+    }];
+    printVariables();
+
+    function printVariables() {
+       var table = document.getElementById("variablesTable");
+       var tableStyle = "style=\"width: 99.9%; height: 100%;border-color: #151515; border-width: 2px\" cellspacing=\"0\" cellpadding=\"0\"";
+       var html = "<div  style=\"border:1px solid #151515; overflow-y: auto; position: absolute; width: 100%; height: 80%\"><table " + tableStyle + ">";
+       
+       var style = " style=\"border:1px solid #202020; height: 30px; width: 18%;\" ";
+       var styleName = " style=\"border:1px solid #202020; height: 30px; width: 64%;\" ";
+
+       var contentStyle = " style=\"position: relative; width: 100%; height: 100%; ";
+       contentStyle += "background-color: #272822; text-align: center; border: none; color: white; font-size: 20px;\"";
+       // variables html
+       for(var i = 0 ; i < window.variables.length; i++) {
+         var variable = window.variables[i];
+         html += "<tr><td " + styleName + "><input " + contentStyle;
+         html += "id=\"variable" + i + "\" ";
+         html += "value=\"" + variable.name + "\" ";
+         html += "oninput=\"endEdit(" + i + ")\"/>";
+         html += "<td " + style + "><div " + contentStyle + " onclick=\"swapToVar(" + i + ")\">Edit</div></td>";
+         html += "<td " + style + "><div " + contentStyle + " onclick=\"removeSelf(" + i + ")\">Remove</div></td></tr>";
+       }
+
+       html += "</table></div>"
+       
+       //add button
+       var buttonAddStyle = " style=\"background-color: #272822; text-align: center; border:1px solid #151515; color: white; font-size: 35px; ";
+       buttonAddStyle += "bottom: 0%; height: 20%; width: 100.1%; position: absolute;\"";
+       html += "<button " + buttonAddStyle + " onclick=\"addVar()\">+</button>";
+       
+      
+       table.innerHTML = html;
+    }
+
+    function removeSelf(index) {
+        if (index != 0) {
+            swapToVar(0);
+            window.variables.splice(index, 1);
+            printVariables();
+        }
+    }
+
+    function endEdit(index) {
+        var variable = window.variables[index];
+        var currentName = document.getElementById("variable" + index).value;
+        variable.name = currentName;
+    }
+
+    function swapToVar(index) {
+        var currentVariable = window.variables[window.state.currentIndex];
+        currentVariable.value = input.getValue();
+
+        var swapToVariable = window.variables[index];
+        input.setValue(swapToVariable.value);
+        var inputType = document.getElementById("inputType");
+        
+        var inputTypeIndex = -1;
+        for(i = 0 ; i < inputType.options.length; i++) {
+            if (inputType.options[i].text == swapToVariable.mimetype) {
+                inputTypeIndex = i;
+            }
+        }
+        inputType.selectedIndex = inputTypeIndex;
+        input.getSession().setMode(inputType.options[inputTypeIndex].value);
+        window.state.currentIndex = index;
+    }
+
+    function addVar() {
+        var payloadDoesNotExists = window.variables.filter(variable => variable.name == "payload").length == 0;
+        var name = payloadDoesNotExists ? "payload" : "vars.name" + window.variables.length;
+        window.variables.push({name: name, value: "", mimetype: "application/java"});
+        printVariables();
+    }
+
+    function inputTypeChangeHandler(select) {
+        input.getSession().setMode(select.value);
+        window.variables[window.state.currentIndex].mimetype = select.options[select.selectedIndex].text;
+    }
+
+    function evaluateDW() {
+        swapToVar(window.state.currentIndex);
+        var inputTypeDom = document.getElementById("inputType");
+        var inputType = inputTypeDom.options[inputTypeDom.selectedIndex].text;
+        var payload = window.variables.filter(variable => variable.name.indexOf("payload") !== -1)[0];
+        var vars = window.variables.filter(variable => variable.name.indexOf("vars.") !== -1);
+        var request = { payload:  payload, vars: vars, expression: dw.getValue(), inputType: inputType};
+	woopra.track("evaluateDW", {inputType: inputType});
+	
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/api/executors/dw", true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.onreadystatechange = function() {//Call a function when the state changes.
+            //if(xhttp.readyState == 4 && xhttp.status == 200) {
+                document.getElementById("status").innerHTML = "<a>Response code: " + xhttp.status + "</a>";
+                var text = xhttp.responseText;
+                output.setValue(text);
+                var mode = "ace/mode/" + xhttp.getResponseHeader("Content-Type").replace("application/", "").replace(";charset=UTF-8", "");
+                if (mode == "csv") {
+                    text = text.replace("\n", "\r\n");
+                    mode = "text";
+                }
+                output.setValue(text);
+                output.getSession().setMode(mode);
+            //}
+        }
+        xhttp.send(JSON.stringify(request));
+    }
+</script>
+</body>
+</html>
